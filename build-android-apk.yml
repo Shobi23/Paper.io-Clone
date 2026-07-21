@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repositoryhttps://github.com/Shobi23/Paper.io-Clone/blob/main/build-android-apk.yml
         uses: actions/checkout@v4
 
       - name: Set up Java JDK
@@ -20,8 +20,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '22.x'
           cache: 'npm'
+
+      - name: Verify Node version
+        run: node --version
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
@@ -31,6 +34,7 @@ jobs:
 
       - name: Build Web Assets & Sync Capacitor
         run: |
+          node --version
           npm run build
           npx cap add android || true
           npx cap sync android
