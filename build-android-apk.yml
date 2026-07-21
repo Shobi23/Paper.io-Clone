@@ -14,7 +14,7 @@ jobs:
       - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: 22.x
 
       - name: Install dependencies
         run: npm install
@@ -22,9 +22,11 @@ jobs:
       - name: Ensure Capacitor Android is installed
         run: npm install @capacitor/android @capacitor/core @capacitor/cli
 
-      - name: Build Web Assets & Sync Capacitor
+      - name: Build Web Assets
+        run: npm run build
+
+      - name: Add & Sync Capacitor Android
         run: |
-          npm run build
           npx cap add android || true
           npx cap sync android
 
