@@ -22,11 +22,9 @@ jobs:
       - name: Ensure Capacitor Android is installed
         run: npm install @capacitor/android @capacitor/core @capacitor/cli
 
-      - name: Build web assets
-        run: npm run build
-
-      - name: Add & Sync Android Platform
+      - name: Build Web Assets & Sync Capacitor
         run: |
+          npm run build
           npx cap add android || true
           npx cap sync android
 
