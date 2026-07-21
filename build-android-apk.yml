@@ -2,67 +2,48 @@ name: Build Android APK
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - master
 
 jobs:
-  build-apk:
-    name: Build installable APK
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
 
     steps:
-      - name: Check out source
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: npm
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-          cache: gradle
+          node-version: 20
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Build web game
+      - name: Ensure Capacitor Android is installed
+        run: npm install @capacitor/android @capacitor/core @capacitor/cli
+
+      - name: Build web assets
         run: npm run build
 
-      - name: Create Android project
+      - name: Add & Sync Android Platform
         run: |
-          npx cap add android
+          npx cap add android || true
           npx cap sync android
 
-      - name: Generate Android icon and splash assets
-        run: >-
-          npx @capacitor/assets generate --android
-          --assetPath assets
-          --iconBackgroundColor '#f4f1e8'
-          --iconBackgroundColorDark '#22232b'
-          --splashBackgroundColor '#f4f1e8'
-          --splashBackgroundColorDark '#22232b'
+      - name: Set up Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
 
-      - name: Build signed debug APK
-        working-directory: android
+      - name: Build APK with Gradle
         run: |
+          cd android
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Prepare downloadable APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk paper-trail.apk
-
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Paper-Trail-Android-APK
-          path: paper-trail.apk
-          if-no-files-found: error
-          retention-days: 30
+          path: android/app/build/outputs/apk/debug/app-debug.apk
